@@ -108,22 +108,25 @@ function blossom(g, x, y, s, t, stage, alpha){
   for(const p of petals){
     const open = smooth(stage*1.75-p.delay*.72-(p.inner?.05:0));
     if(open<.005) continue;
-    const a=p.angle+t*.057+Math.sin(t*1.21+p.angle*2)*.043+(1-open)*.23;
-    const len = lerp(.74,p.length,open)*(1+Math.sin(t*.94+p.angle*3)*.019);
+    const breeze=Math.sin(t*1.05-p.angle*1.8)+.35*Math.sin(t*2.37+p.delay*4);
+    const a=p.angle+t*.057+breeze*(p.inner?.026:.048)+(1-open)*.23;
+    const facing=.5+.5*Math.cos(a+1.95+breeze*.23);
+    const shade=lerpColor(p.color,0x91432b,(1-facing)*(p.inner?.19:.32));
+    const len = lerp(.74,p.length,open)*(1+breeze*.036);
     const w = p.width*lerp(.26,1,open);
-    const bend = p.bend+Math.sin(t*1.12+p.angle*4)*.06;
-    const point = (u,v) => [x+s*(u*Math.cos(a)-v*Math.sin(a)), y+s*.91*(u*Math.sin(a)+v*Math.cos(a))];
+    const bend = p.bend+breeze*.115;
+    const point = (u,v) => [x+s*(u*Math.cos(a)-v*Math.sin(a)), y+s*(.89+.035*Math.sin(t*.51))*(u*Math.sin(a)+v*Math.cos(a))];
     const bezier = (...v) => [...point(v[0],v[1]),...point(v[2],v[3]),...point(v[4],v[5])];
     path(g,point(.45,0),[
       bezier(.85,-w*.97,len*.8,-w+bend*.58,len,bend),
       bezier(len*.87,w*.76+bend*.8,len*.66,w*1.18,.45,0)
-    ],p.color,open*alpha);
+    ],shade,open*alpha);
     path(g,point(.56,.016),[
       bezier(.89,.02,len*.85,bend*.75,len,bend),
       bezier(len*.94,bend*.74,len*.58,w*.65,.56,.016)
-    ],p.inner?0xffef8c:0xffdb78,open*alpha*.69);
+    ],p.inner?0xffef8c:0xffdb78,open*alpha*(.34+facing*.46));
     g.moveTo(...point(.67,0)).bezierCurveTo(...bezier(.99,-w*.33,len*.83,bend*.64,len*.97,bend*.92))
-      .stroke({width:s*.014,color:0xffefad,alpha:open*alpha*.52});
+      .stroke({width:s*.014,color:0xffefad,alpha:open*alpha*(.21+facing*.46)});
   }
   const core = s*(.16+.59*smooth(stage*2));
   ellipse(g,x,y,core*1.04,core*.99,0xcb8c43,alpha);
@@ -144,7 +147,7 @@ function draw(skyLayer, ink, w, h, t, elapsed, reduced, quality) {
   const s = Math.min(w*.217,h*.195);
   const y = h*.425;
   const drift = Math.sin(clock*.63)*.1;
-  const n = quality ? 620 : sky.length;
+  const n = quality ? 430 : sky.length;
   const warmth = smooth((elapsed-34)/12);
   ellipse(skyLayer,x,y,s*2.24,s*1.87,0x8b5747,.045+warmth*.045);
   for(let i=0;i<n;i++){
@@ -175,14 +178,20 @@ function draw(skyLayer, ink, w, h, t, elapsed, reduced, quality) {
     stalk(ink,x,y,s,growth,drift,fade);
     leaf(ink,x+s*.05,y+1.54*s,s*.84*smooth((elapsed-30.5)/5),1,Math.sin(clock*.79)*.16-.15,fade,0x647b39);
     leaf(ink,x+s*.08,y+1.99*s,s*.82*smooth((elapsed-32)/5),-1,Math.sin(clock*.9+1)*.13+.16,fade,0x597238);
+    const halo=open*fade*(.065+warmth*.06);
+    for(let band=4;band>=1;band--){
+      const radius=s*(.92+band*.39);
+      ellipse(skyLayer,naturalX-s*.15,y-s*.12,radius,radius*.88,0xef9c38,halo*.24);
+    }
     blossom(ink,naturalX,y,s,clock,open,fade);
   }
   if(finale){
     const hs=Math.min(w*.416,h*.414)*(1+pulse*.079+Math.sin(clock*1.3)*.012);
     const hy=h*.451;
-    const end=smooth((elapsed-61.4)/9);
-    const burst=smooth((elapsed-59.15)/2.1);
-    const body=smooth((end-.69)/.31);
+    const launch=clamp((elapsed-59.35)/2.8);
+    const burst=1-(1-launch)**3;
+    const end=clamp((elapsed-63)/7.2);
+    const body=smooth((end-.77)/.23);
     for(let layer=0;layer<6;layer++){
       const k=1-layer*.135;
       const first=heartCurve[0];
@@ -193,13 +202,28 @@ function draw(skyLayer, ink, w, h, t, elapsed, reduced, quality) {
     const step=quality?2:1;
     for(let i=0;i<sparks.length;i+=step){
       const [u,v,sx,sy,k,l]=sparks[i];
-      const gather=smooth((end-k*.27)/.73);
-      const fx=x+hs*lerp(sx*burst,u,gather);
-      const fy=hy+hs*lerp(sy*burst,v,gather);
+      const gather=smooth((end-k*.24)/.76);
+      const turn=reduced?0:(.16+k*.3)*burst+(1-gather)*Math.sin(clock*.51+k*9)*.12;
+      const cloudX=(sx*Math.cos(turn)-sy*Math.sin(turn))*burst*.75;
+      const cloudY=(sx*Math.sin(turn)+sy*Math.cos(turn))*burst*.75;
+      const fx=x+hs*lerp(cloudX,u,gather);
+      const fy=hy+hs*lerp(cloudY,v,gather);
       const radius=lerp(1.2+k*1.8,1.1+l*2.8,gather)*(1+pulse*.6);
       ellipse(ink,fx,fy,radius,radius,lerpColor(0xfcca6f,0xff806b,k),burst*(.45+l*.53));
+      if(i%20===0 && gather<.96 && burst>.06){
+        ellipse(skyLayer,fx,fy,radius*1.65,radius*1.65,0xffcc86,burst*(1-gather)*.33);
+      }
     }
-    const flash=Math.exp(-((elapsed-60)**2)*3);
+    const flash=Math.exp(-((elapsed-59.65)**2)*7);
+    if(pulse>.02 && !reduced){
+      const travel=clamp((elapsed-77.05)/1.22);
+      for(let i=0;i<(quality?30:56);i++){
+        const angle=i*2.39996323;
+        const radius=hs*(.56+travel*1.07+(i%7)*.029);
+        const px=x+Math.cos(angle)*radius, py=hy+Math.sin(angle)*radius*.78;
+        ellipse(skyLayer,px,py,1.9,1.35,0xffdc9d,pulse*.68);
+      }
+    }
     ellipse(skyLayer,x,hy,hs*(.61+pulse),hs*(.46+pulse),0xffae6b,flash*.17+pulse*.13);
     const keepsake=smooth((elapsed-72)/5)*.66;
     if(keepsake>0){
@@ -273,7 +297,7 @@ function glyphCanvas() {
   return atlas;
 }
 function cellWidth(w, quality, fallback=false){
-  return Math.max(fallback?4:3,Math.min(6,w/(quality?128:190)));
+  return Math.max(fallback?4:quality?3.65:3,Math.min(6,w/(quality?116:190)));
 }
 async function gpu(host) {
   const {Application, Graphics, Filter, GlProgram, Texture, Rectangle} = await import('./assets/pixi.min.mjs');
@@ -292,12 +316,14 @@ async function gpu(host) {
     ink.filterArea=area;
     app.stage.addChild(skyLayer,ink);
     host.replaceChildren(app.canvas);
-    let width=0,height=0;
+    let width=0,height=0,resolution=0;
     const render=(t,e,r,q)=>{
       const w=host.clientWidth,h=host.clientHeight;
       if(!w||!h)return;
-      if(w!==width||h!==height){
-        app.renderer.resize(w,h);
+      const targetResolution=Math.min(devicePixelRatio,q?1.25:1.75);
+      if(w!==width||h!==height||targetResolution!==resolution){
+        resolution=targetResolution;
+        app.renderer.resize(w,h,resolution);
         area.width=width=w;area.height=height=h;
       }
       cell[0]=cellWidth(w,q);cell[1]=cell[0]*1.48;
@@ -374,10 +400,12 @@ export async function createVisual(host){
   let render;
   try{
     render=await gpu(host);
-    host.firstElementChild.addEventListener('webglcontextlost',()=>{render=cpu(host);},{once:true});
+    host.dataset.renderer='webgl';
+    host.firstElementChild.addEventListener('webglcontextlost',()=>{render=cpu(host);host.dataset.renderer='canvas';},{once:true});
   }catch(error){
     console.warn('WebGL unavailable; using Canvas ASCII rendering.',error);
     render=cpu(host);
+    host.dataset.renderer='canvas';
   }
   return (...args)=>render(...args);
 }

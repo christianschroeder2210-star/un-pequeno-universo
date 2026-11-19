@@ -65,14 +65,38 @@ function show(line){
   story.append(article);
 }
 const finalWords=['Te quiero','por siempre,','mi Annys'];
+function addGoldDust(word, last){
+  if(motion.matches)return;
+  const dust=document.createElement('span');
+  dust.className='gold-dust';
+  dust.setAttribute('aria-hidden','true');
+  const count=art.clientWidth<550?(last?32:19):(last?56:32);
+  for(let i=0;i<count;i++){
+    const spark=document.createElement('i');
+    const angle=i*2.39996323;
+    const distance=(last?2.55:1.55)*(.36+(i%13)/13);
+    spark.style.setProperty('--x',`${(i*37)%98}%`);
+    spark.style.setProperty('--y',`${12+(i*19)%65}%`);
+    spark.style.setProperty('--dx',`${Math.cos(angle)*distance}em`);
+    spark.style.setProperty('--dy',`${Math.sin(angle)*distance*.52}em`);
+    spark.style.setProperty('--delay',`${(i*53)%340}ms`);
+    spark.style.setProperty('--size',`${1+(i%6)*.32}px`);
+    dust.append(spark);
+  }
+  word.append(dust);
+}
 function revealFinal(count){
   const p=story.querySelector('.dedication');
   if(!p)return;
   while(fragments<count){
     const last=fragments===2;
     const word=document.createElement(last?'em':'span');
-    word.className='reveal';
-    word.textContent=finalWords[fragments];
+    word.className=last?'reveal reveal-name':'reveal';
+    const letters=document.createElement('span');
+    letters.className='reveal-letters';
+    letters.textContent=finalWords[fragments];
+    word.append(letters);
+    addGoldDust(word,last);
     if(fragments>0)p.append(document.createTextNode(' '));
     p.append(word);
     fragments++;
@@ -147,7 +171,6 @@ function begin(){
   story.tabIndex=-1;
   story.focus({preventScroll:true});
   if(audio?.state==='suspended')audio.resume().then(music).catch(()=>{});
-
 }
 start.addEventListener('click',begin);
 replay.addEventListener('click',()=>{

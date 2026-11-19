@@ -68,3 +68,33 @@ figcaption{position:absolute;inset:auto 17px 14px;display:flex;justify-content:s
 
 .alhambra{position:absolute;inset:0;width:100%;height:100%;display:block}
 .installation:not([data-scene="0"]) .alhambra{display:none}
+
+.story .reveal{position:relative;width:fit-content;max-width:100%;animation:none}
+.reveal-letters{display:block;animation:gold-letter-reveal 1.4s cubic-bezier(.19,.7,.23,1) both}
+.reveal-name .reveal-letters{animation:gold-letter-reveal 1.5s cubic-bezier(.19,.7,.23,1) both,gold-name-light 2s ease-out both}
+.gold-dust{position:absolute;inset:0;pointer-events:none}
+.gold-dust i{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:#ffe7af;box-shadow:0 0 6px #ffb655;opacity:0;animation:gold-spark 1.4s var(--delay) cubic-bezier(.12,.64,.25,1) both}
+@keyframes gold-letter-reveal{0%{opacity:0;filter:blur(.12em);transform:translateY(.14em)}38%{opacity:.84}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
+@keyframes gold-name-light{0%,100%{text-shadow:0 0 24px #d8994c43}27%{text-shadow:0 0 12px #ffe8c0,0 0 45px #ffb353}}
+@keyframes gold-spark{0%{opacity:0;transform:scale(.4)}16%{opacity:.98}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.15)}}
+
+@media(max-width:760px){
+  .installation{padding-inline:clamp(14px,5vw,28px)}
+  .composition{grid-template-columns:minmax(0,1fr);gap:clamp(8px,2svh,18px)}
+  .art{height:clamp(160px,36svh,390px)}
+  .copy{padding:0;overflow-wrap:break-word}
+  .story{min-height:clamp(138px,25svh,218px)}
+  .story p{font-size:clamp(1.82rem,7.7vw,3.5rem);line-height:1.08;text-wrap:pretty}
+  .story .dedication{font-size:clamp(2.55rem,10vw,4.6rem);line-height:.99}
+  .bottom{min-height:42px;height:auto;padding-block:5px}
+  .progress{gap:5px}.progress span{width:clamp(10px,3vw,16px)}
+}
+@media(max-width:355px){
+  .wordmark,.sound{gap:.37rem;letter-spacing:.04em}
+  .footer-title{letter-spacing:.04em}
+  .bottom{gap:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .gold-dust{display:none}
+  .reveal-letters,.reveal-name .reveal-letters{animation:none}
+}
