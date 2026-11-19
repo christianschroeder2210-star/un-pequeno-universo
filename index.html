@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#100e14">
+<meta name="description" content="Un pequeño universo creado especialmente para ti. Una carta de amor en arte ASCII.">
+<title>Un pequeño universo</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="installation" data-scene="0">
+  <header class="top">
+    <div class="wordmark"><span class="spark" aria-hidden="true">✳</span> UN PEQUEÑO UNIVERSO</div>
+    <button class="sound" type="button" aria-pressed="false" aria-label="Activar sonido"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="sound-label">SONIDO DESACTIVADO</span></button>
+  </header>
+  <div class="composition">
+    <section class="copy" aria-labelledby="title">
+      <div class="copy-inner" id="copy-inner">
+        <div class="eyebrow" id="chapter">UNA CARTA PARA TI</div>
+        <h1 id="title">Hay algo que quiero <em>mostrarte...</em></h1>
+        <p id="subtitle">Un pequeño universo creado especialmente para ti.</p>
+        <button id="start" class="action" type="button" disabled><span>Comenzar</span><span aria-hidden="true">✦</span></button>
+      </div>
+      <div class="story" id="story" aria-live="polite"></div>
+    </section>
+    <figure class="art" aria-label="Ilustración animada en arte ASCII">
+      <div class="artwork" id="artwork" aria-hidden="true"></div>
+      <canvas id="alhambra" class="alhambra" aria-hidden="true"></canvas>
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <figcaption><span id="art-label">ALHAMBRA · GRANADA</span><span>ARTE ASCII</span></figcaption>
+    </figure>
+  </div>
+  <footer class="bottom">
+    <div id="progress" class="progress" role="progressbar" aria-label="Progreso de la carta" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="footer-title" id="footer-title">EL COMIENZO</div>
+    <button class="replay" id="replay" type="button" hidden>Volver a ver <span aria-hidden="true">↺</span></button>
+  </footer>
+</main>
+<script type="module" src="script.js"></script>
+</body>
+</html>
